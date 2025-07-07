@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vampire 5e Character Generator</title>
+    <style>
+        /* Basic styling for the dialog */
+        .generator-dialog {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+        }
+
+        .form-group select,
+        .form-group button {
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .form-group button {
+            background-color: #1d1d1d;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #4b4b4b;
+        }
+
+        .form-group h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="generator-dialog">
+        <h2>Vampire 5e Character Generator</h2>
+        
+        <p>Select a Clan and generate your character.</p>
+
+        <!-- Clan selection -->
+        <div class="form-group">
+            <label for="clan-selection">Choose Your Clan</label>
+            <select id="clan-selection">
+                <option value="Thin-Blood">Thin-Blood</option>
+                <option value="Brujah">Brujah</option>
+                <option value="Ventrue">Ventrue</option>
+                <option value="Toreador">Toreador</option>
+                <option value="Gangrel">Gangrel</option>
+                <option value="Malkavian">Malkavian</option>
+                <option value="Nosferatu">Nosferatu</option>
+                <option value="Tremere">Tremere</option>
+                <option value="Banu Haqim">Banu Haqim</option>
+                <option value="Lasombra">Lasombra</option>
+                <option value="Tzimisce">Tzimisce</option>
+                <option value="Ravnos">Ravnos</option>
+                <option value="Giovanni">Giovanni</option>
+                <option value="Setite">Setite</option>
+            </select>
+        </div>
+
+        <!-- Button to trigger generation -->
+        <div class="form-group">
+            <button id="generate-button">Generate Character</button>
+        </div>
+
+        <div>
+            <label for="mortal-type">Mortal Type:</label>
+            <select id="mortal-type">
+              <option value="none">None</option>
+              <option value="weak">Weak Mortal</option>
+              <option value="average">Average Mortal</option>
+              <option value="gifted">Gifted Mortal</option>
+              <option value="deadly">Deadly Mortal</option>
+            </select>
+          </div>
+
+        <!-- Placeholder for character results -->
+        <div id="result">
+            <!-- Results will appear here after generation -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generate-button').addEventListener('click', function() {
+            const selectedClan = document.getElementById('clan-selection').value;
+            const generator = new VampireCharacterGenerator();  // Assuming you have imported or defined the class
+
+            // Generate the character based on the selected clan
+            const generatedCharacter = generator.generateCharacter(selectedClan);
+            
+            // Display the results
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h3>Your New Character:</h3>
+                <p><strong>Clan:</strong> ${generatedCharacter.clan}</p>
+                <p><strong>Attributes:</strong></p>
+                <ul>
+                    ${Object.entries(generatedCharacter.attributes).map(([key, value]) => {
+                        return `<li>${key}: ${value}</li>`;
+                    }).join('')}
+                </ul>
+                <p><strong>Skills:</strong></p>
+                <ul>
+                    ${Object.entries(generatedCharacter.skills).map(([key, value]) => {
+                        return `<li>${key}: ${value}</li>`;
+                    }).join('')}
+                </ul>
+                <p><strong>Merits:</strong> ${generatedCharacter.merits.join(', ')}</p>
+                <p><strong>Flaws:</strong> ${generatedCharacter.flaws.join(', ')}</p>
+                <button id="create-character-btn">Create Character in Foundry</button>
+            `;
+
+            // Add event listener to create the character in Foundry when clicked
+            document.getElementById('create-character-btn').addEventListener('click', function() {
+                createActorInFoundry(generatedCharacter);
+            });
+        });
+
+        // Function to create the character in Foundry
+        async function createActorInFoundry(characterData) {
+            const actorData = {
+                name: `${characterData.clan} Character`,
+                type: "character",  // Actor type
+                data: {
+                    attributes: {
+                        strength: characterData.attributes.Strength,
+                        dexterity: characterData.attributes.Dexterity,
+                        stamina: characterData.attributes.Stamina,
+                        charisma: characterData.attributes.Charisma,
+                        manipulation: characterData.attributes.Manipulation,
+                        composure: characterData.attributes.Composure,
+                        intelligence: characterData.attributes.Intelligence,
+                        wits: characterData.attributes.Wits,
+                        resolve: characterData.attributes.Resolve,
+                    },
+                    skills: characterData.skills,
+                    merits: characterData.merits,
+                    flaws: characterData.flaws
+                }
+            };
+
+            try {
+                // Create actor in Foundry
+                const actor = await Actor.create(actorData);
+                ui.notifications.info(`New character created: ${actor.name}`);
+            } catch (err) {
+                ui.notifications.error(`Error creating character: ${err.message}`);
+            }
+        }
+
+        // Mock of the character generator (just to show how you'd link it in the dialog)
+        class VampireCharacterGenerator {
+            constructor() {
+                this.clans = ["Thin Blood","Brujah", "Ventrue", "Toreador", "Gangrel", "Malkavian", "Nosferatu", "Tremere", "Banu Haqim", "Lasombra", "Tzimisce", "Ravnos", "Giovanni", "Setite"];
+                this.attributes = { Strength: 3, Dexterity: 2, Stamina: 4, Charisma: 3, Manipulation: 2, Composure: 3, Intelligence: 3, Wits: 3, Resolve: 4 };
+                this.skills = { Athletics: 2, Brawl: 1, Crafts: 3, Firearms: 2, Larceny: 1, Melee: 2, Performance: 3, Persuasion: 2, Science: 1, Stealth: 2, Survival: 2 };
+                this.merits = ["Allies", "Resources"];
+                this.flaws = ["Prey Exclusion"];
+            }
+
+            // Generate character (simplified for this example)
+            generateCharacter(selectedClan) {
+                return {
+                    clan: selectedClan,
+                    attributes: this.attributes,
+                    skills: this.skills,
+                    merits: this.merits,
+                    flaws: this.flaws,
+                    disciplineDots:this.disciplineDots
+                };
+            }
+        }
+    </script>
+</body>
+</html>

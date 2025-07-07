@@ -1,0 +1,16 @@
+{
+    "name": "vampire-5e-character-generator",
+    "title": "Vampire 5e Character Generator",
+    "description": "Automatic character creation for Vampire the Masquerade 5th Edition in Foundry VTT",
+    "version": "1.0.0",
+    "author": "Your Name",
+    "system": "vampire5e",
+    "scripts": ["scripts/generator.js","scripts/actorCreate.js"],
+    "styles": [],
+    "dependencies": [],
+    "packs": [],
+    "url": "https://yourwebsite.com",
+    "manifest": "https://yourwebsite.com/manifest.json",
+    "license": "MIT"
+  }
+  
